@@ -1,7 +1,7 @@
 from selenium.webdriver.common.by import By
 
 
-class SelectorsForProject:
+class SelectorsForPages:
     CODE_PROJECT = (By.CSS_SELECTOR, "#code")
     USERNAME = (By.CSS_SELECTOR, "#email")
     PASSWORD = (By.CSS_SELECTOR, "#password")

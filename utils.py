@@ -1,5 +1,14 @@
 import random
 
+from selenium import webdriver
+
+
+def build_browser():
+    chrome_options = webdriver.ChromeOptions()
+    chrome_options.add_argument('--window-size=1920,1080')
+
+    return webdriver.Chrome(chrome_options=chrome_options)
+
 
 def random_project_code():
     project_code = ""
