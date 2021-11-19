@@ -21,7 +21,7 @@ projects_link = "https://office.ideadeploy.space/projects"
 add_project_link = "https://office.ideadeploy.space/add-project"
 
 
-class Page:
+class BasePage:
     def __init__(self, browser, url, timeout=10):
         self.browser = browser
         self.url = url
@@ -31,6 +31,8 @@ class Page:
         self.browser.get(self.url)
         time.sleep(2)
 
+
+class LoginPage(BasePage):
     def authorization(self):
         username = self.browser.find_element(*SelectorsForProject.USERNAME)
         username.send_keys("qa@viewgin.com")
@@ -58,6 +60,8 @@ class Page:
         data_entry_error = self.browser.find_element(*SelectorsForProject.DATA_ENTRY_ERROR)
         assert data_entry_error.text != "Неверные учетные данные", "User is logged"
 
+
+class ProjectPage(BasePage):
     def create_project(self):
         add_project_button = self.browser.find_element(*SelectorsForProject.ADD_PROJECT_BUTTON)
         add_project_button.click()
@@ -112,7 +116,7 @@ class Page:
         assert self.browser.current_url == login_link, "Wrong url!"
 
 
-class TestPage:
+class TestsLoginPage:
     @classmethod
     def setup_class(cls):
         cls.browser = build_browser()
@@ -122,26 +126,43 @@ class TestPage:
         cls.browser.quit()
 
     def teardown_method(self, method):
-        page = Page(self.browser, logout_link)
+        page = BasePage(self.browser, logout_link)
         page.open()
 
     def test_authorization(self):
-        page = Page(self.browser, login_link)
+        page = LoginPage(self.browser, login_link)
         page.open()
         page.authorization()
-
-    def test_create_new_project_logged_user(self):
-        page = Page(self.browser, login_link)
-        page.open()
-        page.authorization()
-        page.create_project()
 
     def test_invalid_user_data(self):
-        page = Page(self.browser, login_link)
+        page = LoginPage(self.browser, login_link)
         page.open()
         page.enter_invalid_user_data_in_login_form()
 
+
+class TestsProjectPage:
+    @classmethod
+    def setup_class(cls):
+        cls.browser = build_browser()
+
+    @classmethod
+    def teardown_class(cls):
+        cls.browser.quit()
+
+    def teardown_method(self, method):
+        page = BasePage(self.browser, logout_link)
+        page.open()
+
+    def test_create_new_project_logged_user(self):
+        page = LoginPage(self.browser, login_link)
+        page.open()
+        page.authorization()
+
+        page = ProjectPage(self.browser, projects_link)
+        page.open()
+        page.create_project()
+
     def test_open_projects_page_with_not_logged_user(self):
-        page = Page(self.browser, projects_link)
+        page = ProjectPage(self.browser, projects_link)
         page.open()
         page.open_projects_without_login()
