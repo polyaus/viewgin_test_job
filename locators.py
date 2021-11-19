@@ -21,3 +21,4 @@ class SelectorsForProject:
     PROJECTS_TITLE = (By.CSS_SELECTOR, ".main-content h4")
     NAME_PROJECT_IN_PROJECTS = (By.CSS_SELECTOR, ".main-content h5")
     ERROR_ENTER_NAME_PROJECT = (By.CSS_SELECTOR, ".main-content .invalid-feedback")
+    ADDED_WORKERS = (By.CSS_SELECTOR, ".card-body .mb-4.col-md-6 .table tr td:nth-child(2)")

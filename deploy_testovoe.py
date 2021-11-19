@@ -44,7 +44,7 @@ class LoginPage(BasePage):
         login_button.click()
 
         nickname = self.browser.find_element(*SelectorsForProject.NICKNAME)
-        assert nickname.text == "QA", "Nickname is not correct for user."
+        assert nickname.text == "QA", f"Nickname is not correct for user: {nickname.text}"
 
     def enter_invalid_user_data_in_login_form(self):
         username = self.browser.find_element(*SelectorsForProject.USERNAME)
@@ -57,15 +57,16 @@ class LoginPage(BasePage):
         login_button = self.browser.find_element(*SelectorsForProject.LOGIN)
         login_button.click()
 
+        time.sleep(2)
         data_entry_error = self.browser.find_element(*SelectorsForProject.DATA_ENTRY_ERROR)
-        assert data_entry_error.text != "Неверные учетные данные", "User is logged"
+        assert data_entry_error.text == "Неверные учетные данные", f"User is logged: {data_entry_error.text}"
 
 
 class ProjectPage(BasePage):
     def create_project(self):
         add_project_button = self.browser.find_element(*SelectorsForProject.ADD_PROJECT_BUTTON)
         add_project_button.click()
-        assert self.browser.current_url == add_project_link, f"Create project is not started! {self.url}"
+        assert self.browser.current_url == add_project_link, f"Create project is not started! Url - {self.url}"
 
         code_project = self.browser.find_element(*SelectorsForProject.CODE_PROJECT)
         random_code_project = random_project_code()
@@ -75,12 +76,21 @@ class ProjectPage(BasePage):
         name_project.send_keys("Test Selenium(timestamp)")
 
         table_workers = self.browser.find_elements(*SelectorsForProject.TABLE_WORKERS)
+        add_workers_count = 0
         for idx, table_worker in enumerate(table_workers):
             if idx - 2 >= 0:
                 self.browser.execute_script("return arguments[0].scrollIntoView({block: 'center'});", table_workers[idx-2])
-            if table_worker.text.strip() in ["Test", "Vlad"]:
+            worker_name = table_worker.text.strip()
+            if worker_name in ["Test", "Vlad"]:
                 time.sleep(1)
                 table_worker.click()
+
+                time.sleep(1)
+                add_workers_count += 1
+                add_workers = self.browser.find_elements(*SelectorsForProject.ADDED_WORKERS)
+                assert add_workers[-1].text == worker_name, f"Wrong added worker name: {add_workers[-1].text}"
+                assert len(add_workers) == add_workers_count, \
+                    f"Count add workers is not actual: {len(add_workers)}, {add_workers_count}"
 
         data_finish_project = self.browser.find_element(*SelectorsForProject.DATA_FINISH_PROJECT)
         data_finish_project.click()
@@ -114,20 +124,29 @@ class ProjectPage(BasePage):
     def create_project_without_name(self):
         add_project_button = self.browser.find_element(*SelectorsForProject.ADD_PROJECT_BUTTON)
         add_project_button.click()
-        assert self.browser.current_url == add_project_link, f"Create project is not started! {self.url}"
+        assert self.browser.current_url == add_project_link, f"Create project is not started! Url - {self.url}"
 
         code_project = self.browser.find_element(*SelectorsForProject.CODE_PROJECT)
         random_code_project = random_project_code()
         code_project.send_keys(random_code_project)
 
         table_workers = self.browser.find_elements(*SelectorsForProject.TABLE_WORKERS)
+        add_workers_count = 0
         for idx, table_worker in enumerate(table_workers):
             if idx - 2 >= 0:
                 self.browser.execute_script("return arguments[0].scrollIntoView({block: 'center'});",
                                             table_workers[idx - 2])
-            if table_worker.text.strip() in ["Test", "Vlad"]:
+            worker_name = table_worker.text.strip()
+            if worker_name in ["Test", "Vlad"]:
                 time.sleep(1)
                 table_worker.click()
+
+                time.sleep(1)
+                add_workers_count += 1
+                add_workers = self.browser.find_elements(*SelectorsForProject.ADDED_WORKERS)
+                assert add_workers[-1].text == worker_name, f"Wrong added worker name: {add_workers[-1].text}"
+                assert len(add_workers) == add_workers_count, \
+                    f"Count add workers is not actual: {len(add_workers)}, {add_workers_count}"
 
         data_finish_project = self.browser.find_element(*SelectorsForProject.DATA_FINISH_PROJECT)
         data_finish_project.click()
