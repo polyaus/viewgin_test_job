@@ -14,6 +14,7 @@ def build_browser():
 
 
 login_link = "https://office.ideadeploy.space/"
+logout_link = "https://office.ideadeploy.space/logout"
 
 
 class Page:
@@ -24,6 +25,7 @@ class Page:
 
     def open(self):
         self.browser.get(self.url)
+        time.sleep(2)
 
     def authorization(self):
         username = self.browser.find_element(*SelectorsForProject.USERNAME)
@@ -34,6 +36,22 @@ class Page:
 
         login_button = self.browser.find_element(*SelectorsForProject.LOGIN)
         login_button.click()
+
+        nickname = self.browser.find_element(*SelectorsForProject.NICKNAME)
+        assert nickname.text == "QA", "Nickname is not correct for user."
+
+    def enter_invalid_user_data_in_login_form(self):
+        username = self.browser.find_element(*SelectorsForProject.USERNAME)
+        username.send_keys("qa@viewgin.com")
+
+        password = self.browser.find_element(*SelectorsForProject.PASSWORD)
+        password.send_keys(random_project_code())
+
+        login_button = self.browser.find_element(*SelectorsForProject.LOGIN)
+        login_button.click()
+
+        data_entry_error = self.browser.find_element(*SelectorsForProject.DATA_ENTRY_ERROR)
+        assert data_entry_error.text != "Неверные учетные данные", "User is logged"
 
     def create_project(self):
         add_project_button = self.browser.find_element(*SelectorsForProject.ADD_PROJECT_BUTTON)
@@ -73,6 +91,10 @@ class Page:
         time.sleep(5)
         save_project.click()
 
+        time.sleep(5)
+        projects_title = self.browser.find_element(*SelectorsForProject.PROJECTS_TITLE)
+        assert projects_title.text == "Проекты", "The project is not added."
+
 
 class TestPage:
     @classmethod
@@ -83,8 +105,22 @@ class TestPage:
     def teardown_class(cls):
         cls.browser.quit()
 
+    def teardown_method(self, method):
+        page = Page(self.browser, logout_link)
+        page.open()
+
     def test_authorization(self):
         page = Page(self.browser, login_link)
         page.open()
         page.authorization()
+
+    def test_create_new_project_logged_user(self):
+        page = Page(self.browser, login_link)
+        page.open()
+        page.authorization()
         page.create_project()
+
+    def test_invalid_user_data(self):
+        page = Page(self.browser, login_link)
+        page.open()
+        page.enter_invalid_user_data_in_login_form()
