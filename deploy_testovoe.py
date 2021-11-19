@@ -111,6 +111,48 @@ class ProjectPage(BasePage):
         assert name_project_in_projects.text == "Test Selenium(timestamp)", \
             f"The project is not added. {name_project_in_projects.text}"
 
+    def create_project_without_name(self):
+        add_project_button = self.browser.find_element(*SelectorsForProject.ADD_PROJECT_BUTTON)
+        add_project_button.click()
+        assert self.browser.current_url == add_project_link, f"Create project is not started! {self.url}"
+
+        code_project = self.browser.find_element(*SelectorsForProject.CODE_PROJECT)
+        random_code_project = random_project_code()
+        code_project.send_keys(random_code_project)
+
+        table_workers = self.browser.find_elements(*SelectorsForProject.TABLE_WORKERS)
+        for idx, table_worker in enumerate(table_workers):
+            if idx - 2 >= 0:
+                self.browser.execute_script("return arguments[0].scrollIntoView({block: 'center'});",
+                                            table_workers[idx - 2])
+            if table_worker.text.strip() in ["Test", "Vlad"]:
+                time.sleep(1)
+                table_worker.click()
+
+        data_finish_project = self.browser.find_element(*SelectorsForProject.DATA_FINISH_PROJECT)
+        data_finish_project.click()
+        months_finish = self.browser.find_element(*SelectorsForProject.MONTHS_FINISH)
+        months_finish.click()
+        november = months_finish.find_element(*SelectorsForProject.NOVEMBER)
+        november.click()
+
+        year = self.browser.find_element(*SelectorsForProject.YEAR)
+        year.click()
+        year.send_keys("2021")
+
+        day = self.browser.find_element(*SelectorsForProject.DAY)
+        day.click()
+        time.sleep(5)
+
+        save_project = self.browser.find_element(*SelectorsForProject.SAVE_PROJECT)
+        self.browser.execute_script("return arguments[0].scrollIntoView({block: 'center'});", save_project)
+        time.sleep(5)
+        save_project.click()
+
+        error_enter_name_project = self.browser.find_element(*SelectorsForProject.ERROR_ENTER_NAME_PROJECT)
+        assert error_enter_name_project.text == "Пожалуйста введите название проекта", \
+            f"Project added without name, {error_enter_name_project.text}"
+
     def open_projects_without_login(self):
         assert self.url != self.browser.current_url, "User is logged!"
         assert self.browser.current_url == login_link, "Wrong url!"
@@ -153,7 +195,7 @@ class TestsProjectPage:
         page = BasePage(self.browser, logout_link)
         page.open()
 
-    def test_create_new_project_logged_user(self):
+    def test_create_project_logged_user(self):
         page = LoginPage(self.browser, login_link)
         page.open()
         page.authorization()
@@ -161,6 +203,15 @@ class TestsProjectPage:
         page = ProjectPage(self.browser, projects_link)
         page.open()
         page.create_project()
+
+    def test_create_project_without_name_logged_user(self):
+        page = LoginPage(self.browser, login_link)
+        page.open()
+        page.authorization()
+
+        page = ProjectPage(self.browser, projects_link)
+        page.open()
+        page.create_project_without_name()
 
     def test_open_projects_page_with_not_logged_user(self):
         page = ProjectPage(self.browser, projects_link)
