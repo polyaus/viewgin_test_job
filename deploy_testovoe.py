@@ -1,6 +1,8 @@
 import time
 
 from selenium import webdriver
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.wait import WebDriverWait
 
 from locators import SelectorsForProject
 from utils import random_project_code
@@ -16,6 +18,7 @@ def build_browser():
 login_link = "https://office.ideadeploy.space/login"
 logout_link = "https://office.ideadeploy.space/logout"
 projects_link = "https://office.ideadeploy.space/projects"
+add_project_link = "https://office.ideadeploy.space/add-project"
 
 
 class Page:
@@ -46,7 +49,8 @@ class Page:
         username.send_keys("qa@viewgin.com")
 
         password = self.browser.find_element(*SelectorsForProject.PASSWORD)
-        password.send_keys(random_project_code())
+        random_password = random_project_code()
+        password.send_keys(random_password)
 
         login_button = self.browser.find_element(*SelectorsForProject.LOGIN)
         login_button.click()
@@ -57,9 +61,11 @@ class Page:
     def create_project(self):
         add_project_button = self.browser.find_element(*SelectorsForProject.ADD_PROJECT_BUTTON)
         add_project_button.click()
+        assert self.browser.current_url == add_project_link, f"Create project is not started! {self.url}"
 
         code_project = self.browser.find_element(*SelectorsForProject.CODE_PROJECT)
-        code_project.send_keys(random_project_code())
+        random_code_project = random_project_code()
+        code_project.send_keys(random_code_project)
 
         name_project = self.browser.find_element(*SelectorsForProject.NAME_PROJECT)
         name_project.send_keys("Test Selenium(timestamp)")
@@ -92,9 +98,14 @@ class Page:
         time.sleep(5)
         save_project.click()
 
-        time.sleep(5)
+        wait = WebDriverWait(self.browser, 5)
+        wait.until(EC.visibility_of_element_located(SelectorsForProject.NAME_PROJECT_IN_PROJECTS))
         projects_title = self.browser.find_element(*SelectorsForProject.PROJECTS_TITLE)
-        assert projects_title.text == "Проекты", "The project is not added."
+        assert projects_title.text == "Проекты", "Page with projects not opened."
+
+        name_project_in_projects = self.browser.find_element(*SelectorsForProject.NAME_PROJECT_IN_PROJECTS)
+        assert name_project_in_projects.text == "Test Selenium(timestamp)", \
+            f"The project is not added. {name_project_in_projects.text}"
 
     def open_projects_without_login(self):
         assert self.url != self.browser.current_url, "User is logged!"

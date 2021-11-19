@@ -19,3 +19,4 @@ class SelectorsForProject:
     DAY = (By.CSS_SELECTOR, ".flatpickr-innerContainer .dayContainer .flatpickr-day[aria-label='November 30, 2021']")
     SAVE_PROJECT = (By.CSS_SELECTOR, ".card-body .btn-primary[type='submit']")
     PROJECTS_TITLE = (By.CSS_SELECTOR, ".main-content h4")
+    NAME_PROJECT_IN_PROJECTS = (By.CSS_SELECTOR, ".main-content h5")
