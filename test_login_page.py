@@ -26,3 +26,5 @@ class TestsLoginPage:
         page = LoginPage(self.browser, LOGIN_LINK)
         page.open()
         page.enter_invalid_user_data_in_login_form()
+
+        self.browser.get_screenshot_as_file("screenshots/test_invalid_user_data.png")

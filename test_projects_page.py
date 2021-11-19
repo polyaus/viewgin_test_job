@@ -36,7 +36,11 @@ class TestsProjectPage:
         page.open()
         page.create_project_without_name()
 
+        self.browser.get_screenshot_as_file("screenshots/test_create_project_without_name_logged_user.png")
+
     def test_open_projects_page_with_not_logged_user(self):
         page = ProjectPage(self.browser, PROJECTS_LINK)
         page.open()
         page.open_projects_without_login()
+
+        self.browser.get_screenshot_as_file("screenshots/test_open_projects_page_with_not_logged_user.png")
