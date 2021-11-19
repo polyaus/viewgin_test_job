@@ -13,8 +13,9 @@ def build_browser():
     return webdriver.Chrome(chrome_options=chrome_options)
 
 
-login_link = "https://office.ideadeploy.space/"
+login_link = "https://office.ideadeploy.space/login"
 logout_link = "https://office.ideadeploy.space/logout"
+projects_link = "https://office.ideadeploy.space/projects"
 
 
 class Page:
@@ -95,6 +96,10 @@ class Page:
         projects_title = self.browser.find_element(*SelectorsForProject.PROJECTS_TITLE)
         assert projects_title.text == "Проекты", "The project is not added."
 
+    def open_projects_without_login(self):
+        assert self.url != self.browser.current_url, "User is logged!"
+        assert self.browser.current_url == login_link, "Wrong url!"
+
 
 class TestPage:
     @classmethod
@@ -124,3 +129,8 @@ class TestPage:
         page = Page(self.browser, login_link)
         page.open()
         page.enter_invalid_user_data_in_login_form()
+
+    def test_open_projects_page_with_not_logged_user(self):
+        page = Page(self.browser, projects_link)
+        page.open()
+        page.open_projects_without_login()
